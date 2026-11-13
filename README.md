@@ -1,5 +1,7 @@
 # FileVault: App Service Builder + Azure Blob Storage
 
+This integration is not in the Portal template gallery; fork the canonical repository and follow the manual resource setup below.
+
 A React file browser with a Node.js 24/Express backend for **private Azure Blob
 Storage**. Upload, list, filter loaded files, preview raster images, download, and
 delete files without a database, storage account key, connection string, SAS, or
@@ -88,7 +90,7 @@ Use your subscription explicitly in **every Azure command**. Shell placeholders
 below refer only to your newly created test resources; do not reuse or modify
 production resources.
 
-Fork [this repository](https://github.com/Azure-Samples/app-service-builder-storage)
+Fork [this repository](https://github.com/AzureAppService/app-service-builder-storage)
 into your GitHub account, then clone your copy and run the following steps from
 its root. Keep the root `builder.yaml` and both component directories together:
 

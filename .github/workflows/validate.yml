@@ -1,0 +1,33 @@
+name: Validate Blob Storage sample
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            client/package-lock.json
+            server/package-lock.json
+      - run: npm ci
+      - run: npm run install:components
+      - run: npm test
+      - run: npm run build
+      - run: DESTINATION_DIR="$RUNNER_TEMP/filevault-artifact" npm run build:builder
+      - run: |
+          az bicep build --file infra/main.bicep --stdout > /dev/null
+          az bicep build --file infra/role.bicep --stdout > /dev/null
