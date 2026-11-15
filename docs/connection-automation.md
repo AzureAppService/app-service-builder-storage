@@ -70,6 +70,23 @@ az rest --method get --url "$APP_URL" --query properties.versionConfiguration.co
 On 412 refresh/reconcile; never remove the ETag guard. Variables, source, scaling and unrelated connections are preserved.
 For existing variable-based apps, remove conflicting routing entries without deploying before saving the connection; do not reconstruct secret values from ordinary GET metadata.
 
+## Optional synthetic demo files
+
+After access and connection setup, follow the README's **Optional: populate the demo
+with synthetic files** step. The signed-in Azure CLI setup identity needs its own
+container-scoped Contributor access; the app grant does not grant the caller access.
+
+```bash
+npm run seed:files -- --subscription "$SUBSCRIPTION" \
+  --account-name "$STORAGE" --container-name filevault --confirm-demo-seed
+```
+
+This explicitly creates three tiny fictional TXT/CSV files under `filevault-demo/`
+using Entra login and conditional block-blob creation. Existing names remain unchanged;
+it never overwrites/deletes, changes public access or uploads during app startup.
+Connection saving alone does not create files. Refresh the authenticated app to
+verify them; unit tests do not qualify the live helper.
+
 ## Deploy and verify
 
 Use the chosen GitHub source, or create `git archive --format=zip --output=../filevault-source.zip HEAD` and deploy with `builder app deploy --name "$APP" -s "$SUBSCRIPTION" -g "$RG" --source-archive ../filevault-source.zip --manifest ./builder.yaml --json`.

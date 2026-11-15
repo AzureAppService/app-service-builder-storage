@@ -11,7 +11,8 @@
     "build:builder": "node scripts/build.js",
     "start": "node server/index.js",
     "test": "node --test test/*.test.js",
-    "verify:storage": "node scripts/verify-storage.js"
+    "verify:storage": "node scripts/verify-storage.js",
+    "seed:files": "node scripts/seed-demo-files.js"
   },
   "devDependencies": {
     "concurrently": "^9.2.5"

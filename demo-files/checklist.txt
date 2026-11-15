@@ -1,0 +1,5 @@
+SYNTHETIC FILEVAULT DEMO CHECKLIST
+1. Sign in as an allowed tester.
+2. Refresh the file list.
+3. Download a demo file and compare its contents.
+4. Keep or delete only files you own.

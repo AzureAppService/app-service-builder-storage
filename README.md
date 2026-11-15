@@ -282,6 +282,27 @@ Identity-only changes redeploy retained output; variable changes capture a new
 version. Confirm the running deployment completed before testing. User-assigned
 identities are not deleted when the app is deleted.
 
+### Optional: populate the demo with synthetic files
+
+After connection/access setup, explicitly upload three small fictional TXT/CSV files
+so the first file browser has useful content. This is a local setup step, never an
+app-startup upload. The Azure CLI setup identity needs its own container-scoped
+**Storage Blob Data Contributor** grant (the developer grant in section 2);
+granting the app identity does not authorize your signed-in CLI identity.
+
+```bash
+npm run seed:files -- --subscription "$SUBSCRIPTION" \
+  --account-name "$STORAGE" --container-name filevault --confirm-demo-seed
+```
+
+Review `demo-files/` first. The helper uses Entra `--auth-mode login`, block blobs
+and conditional create-only uploads under `filevault-demo/`. Existing names are
+left unchanged, including during races; reruns do not overwrite or delete anything.
+It does not create containers, assign roles, change public access or use keys/SAS.
+Other failures stop explicitly; files created before a failure remain. Open the
+authenticated app and refresh to verify actual connected content. These files
+are optional and retained for review; they are not customer documents.
+
 ## 5. Qualify the deployed sample and capture evidence
 
 Wait for a successful deployment and confirm the source commit/active version.
