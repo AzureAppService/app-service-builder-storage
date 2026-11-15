@@ -38,6 +38,9 @@ Those used local developer credentials, not hosted managed identity.
 
 ## Architecture and boundaries
 
+For terminal alternatives to the Portal connection steps, use [CLI and ordered ARM/Bicep setup](docs/connection-automation.md).
+The same managed identity, container-scoped Contributor grant and file-operation checks apply.
+
 The browser calls same-origin `/api/files`. Express uses the official
 `@azure/storage-blob` SDK. Hosted code uses `ManagedIdentityCredential`
 (system-assigned by default; `AZURE_CLIENT_ID` selects a user-assigned identity).
@@ -204,8 +207,8 @@ The **Connection string** alternative is not used by this MI-only sample and its
 dependency template disables Shared Key. Do not enable keys or add a password fallback.
 For CLI and ETag-guarded ARM setup, follow the
 [Connections guide](https://builder.appservice.azure.com/docs/guides/connect-to-services/).
-Installed CLI 0.0.2 does not include Connections; check installed help rather than
-assuming current source commands have been released.
+Native CLI requires a release that lists `app connections` in help; the
+[sample-specific CLI/ARM steps](docs/connection-automation.md) include that prerequisite.
 
 | Runtime setting | Value |
 | --- | --- |
