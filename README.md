@@ -184,11 +184,28 @@ In [App Service Builder Portal](https://builder.appservice.azure.com/):
    **Limit to specific identities**, with your tenant ID plus explicit allowed
    user object IDs, then **Save**. Use Builder's managed Entra application.
    A tenant-only rule allows everyone in that directory.
-4. In Variables, set the storage endpoint/container from the Bicep outputs.
-   Keep `APP_ACCESS_MODE=builder` or omit it, and leave `AZURE_CLIENT_ID` unset
-   for system-assigned identity. Do not add a `VITE_` credential variable.
-5. Save settings and deploy a new version. On Identity, record the app's
-   **principal ID**, then grant the role below and verify actual operations.
+4. In **Connections**, add **Storage account**, choose the provisioned account
+   and app's system-assigned **Managed identity**, and select container `filevault`.
+   Rename the account URL mapping to `AZURE_STORAGE_BLOB_ENDPOINT`; keep
+   `AZURE_STORAGE_CONTAINER`. Save pending configuration.
+   Keep only `APP_ACCESS_MODE=builder` in Variables (or omit it), and leave
+   `AZURE_CLIENT_ID` unset. Do not add a `VITE_` credential variable.
+   When migrating an existing app, remove its manual endpoint/container variables
+   without deploying before saving those exact connection mappings.
+5. On Identity, record the app's **principal ID**, grant the role below, then
+   deploy the complete desired configuration and verify actual operations.
+   Saving a connection does not deploy or grant access. Choose **Storage Blob Data
+   Contributor**, not the default Reader, because this app writes.
+
+[connection.json](connection.json) contains the complete system-identity object.
+Replace placeholders with your existing account resource ID and URL. Connections
+exports these settings only to runtime; local environment setup above is unchanged.
+The **Connection string** alternative is not used by this MI-only sample and its
+dependency template disables Shared Key. Do not enable keys or add a password fallback.
+For CLI and ETag-guarded ARM setup, follow the
+[Connections guide](https://builder.appservice.azure.com/docs/guides/connect-to-services/).
+Installed CLI 0.0.2 does not include Connections; check installed help rather than
+assuming current source commands have been released.
 
 | Runtime setting | Value |
 | --- | --- |
