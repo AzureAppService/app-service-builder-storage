@@ -302,6 +302,9 @@ It does not create containers, assign roles, change public access or use keys/SA
 Other failures stop explicitly; files created before a failure remain. Open the
 authenticated app and refresh to verify actual connected content. These files
 are optional and retained for review; they are not customer documents.
+Download the seeded files and compare them with `demo-files/`. FileVault links
+preserve the `filevault-demo/` separator while encoding each name segment, so
+nested files remain usable for downloads, previews and guarded deletes.
 
 ## 5. Qualify the deployed sample and capture evidence
 
