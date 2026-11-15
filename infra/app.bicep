@@ -17,7 +17,7 @@ resource app 'Microsoft.Web/builderApps@2026-09-01-preview' = {
     }
     scaling: {
       components: [
-        { name: 'api', minReplicas: 1, maxReplicas: 2, httpEnabled: true }
+        { name: 'api', minReplicas: 0, maxReplicas: 2, httpEnabled: true }
       ]
     }
   }

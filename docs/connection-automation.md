@@ -6,6 +6,9 @@ Do not run creation templates over an existing configured app.
 
 ## Provision resources and identity with Bicep
 
+The app template uses minimum 0 / maximum 2 HTTP replicas and preserves idle timeout.
+Preview requires a minimum of zero; do not disable idle timeout.
+
 Set `SUBSCRIPTION`, `RG`, unique new `APP` and `STORAGE` names. Sign in with Azure CLI and create the dedicated group in West US 2.
 
 ```bash
