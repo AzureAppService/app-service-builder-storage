@@ -38,6 +38,9 @@ Those used local developer credentials, not hosted managed identity.
 
 ## Architecture and boundaries
 
+For terminal alternatives to the Portal connection steps, use [CLI and ordered ARM/Bicep setup](docs/connection-automation.md).
+The same managed identity, container-scoped Contributor grant and file-operation checks apply.
+
 The browser calls same-origin `/api/files`. Express uses the official
 `@azure/storage-blob` SDK. Hosted code uses `ManagedIdentityCredential`
 (system-assigned by default; `AZURE_CLIENT_ID` selects a user-assigned identity).
@@ -184,11 +187,28 @@ In [App Service Builder Portal](https://builder.appservice.azure.com/):
    **Limit to specific identities**, with your tenant ID plus explicit allowed
    user object IDs, then **Save**. Use Builder's managed Entra application.
    A tenant-only rule allows everyone in that directory.
-4. In Variables, set the storage endpoint/container from the Bicep outputs.
-   Keep `APP_ACCESS_MODE=builder` or omit it, and leave `AZURE_CLIENT_ID` unset
-   for system-assigned identity. Do not add a `VITE_` credential variable.
-5. Save settings and deploy a new version. On Identity, record the app's
-   **principal ID**, then grant the role below and verify actual operations.
+4. In **Connections**, add **Storage account**, choose the provisioned account
+   and app's system-assigned **Managed identity**, and select container `filevault`.
+   Rename the account URL mapping to `AZURE_STORAGE_BLOB_ENDPOINT`; keep
+   `AZURE_STORAGE_CONTAINER`. Save pending configuration.
+   Keep only `APP_ACCESS_MODE=builder` in Variables (or omit it), and leave
+   `AZURE_CLIENT_ID` unset. Do not add a `VITE_` credential variable.
+   When migrating an existing app, remove its manual endpoint/container variables
+   without deploying before saving those exact connection mappings.
+5. On Identity, record the app's **principal ID**, grant the role below, then
+   deploy the complete desired configuration and verify actual operations.
+   Saving a connection does not deploy or grant access. Choose **Storage Blob Data
+   Contributor**, not the default Reader, because this app writes.
+
+[connection.json](connection.json) contains the complete system-identity object.
+Replace placeholders with your existing account resource ID and URL. Connections
+exports these settings only to runtime; local environment setup above is unchanged.
+The **Connection string** alternative is not used by this MI-only sample and its
+dependency template disables Shared Key. Do not enable keys or add a password fallback.
+For CLI and ETag-guarded ARM setup, follow the
+[Connections guide](https://builder.appservice.azure.com/docs/guides/connect-to-services/).
+Native CLI requires a release that lists `app connections` in help; the
+[sample-specific CLI/ARM steps](docs/connection-automation.md) include that prerequisite.
 
 | Runtime setting | Value |
 | --- | --- |
@@ -261,6 +281,30 @@ AZURE_CLIENT_ID**, then **Save and deploy**. Grant the role above to the identit
 Identity-only changes redeploy retained output; variable changes capture a new
 version. Confirm the running deployment completed before testing. User-assigned
 identities are not deleted when the app is deleted.
+
+### Optional: populate the demo with synthetic files
+
+After connection/access setup, explicitly upload three small fictional TXT/CSV files
+so the first file browser has useful content. This is a local setup step, never an
+app-startup upload. The Azure CLI setup identity needs its own container-scoped
+**Storage Blob Data Contributor** grant (the developer grant in section 2);
+granting the app identity does not authorize your signed-in CLI identity.
+
+```bash
+npm run seed:files -- --subscription "$SUBSCRIPTION" \
+  --account-name "$STORAGE" --container-name filevault --confirm-demo-seed
+```
+
+Review `demo-files/` first. The helper uses Entra `--auth-mode login`, block blobs
+and conditional create-only uploads under `filevault-demo/`. Existing names are
+left unchanged, including during races; reruns do not overwrite or delete anything.
+It does not create containers, assign roles, change public access or use keys/SAS.
+Other failures stop explicitly; files created before a failure remain. Open the
+authenticated app and refresh to verify actual connected content. These files
+are optional and retained for review; they are not customer documents.
+Download the seeded files and compare them with `demo-files/`. FileVault links
+preserve the `filevault-demo/` separator while encoding each name segment, so
+nested files remain usable for downloads, previews and guarded deletes.
 
 ## 5. Qualify the deployed sample and capture evidence
 

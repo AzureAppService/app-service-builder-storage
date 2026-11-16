@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const { Readable } = require('node:stream');
 const { createApp } = require('../server/app');
 const { createContainerClient } = require('../server/storage');
+const { blobUrl } = require('../client/src/blob-url.mjs');
 
 async function withServer(run, { mode = 'local', container } = {}) {
   const blobs = new Map();
@@ -73,6 +74,29 @@ test('upload, paged list, byte-exact download and delete through backend', async
     assert.equal(deletion.status, 200);
     assert.equal((await fetch(url + '/api/files/' + key)).status, 404);
     assert.equal((await fetch(url + '/api/files/' + key, { method: 'DELETE', headers: { 'X-FileVault-Request': '1' } })).status, 404);
+  });
+});
+
+test('seeded nested file URLs preserve separators and round-trip downloads and guarded deletes', async () => {
+  await withServer(async ({ url, blobs }) => {
+    const keys = ['filevault-demo/checklist.txt', 'filevault-demo/demo-metrics.csv',
+      'filevault-demo/welcome.txt', 'folder/space name?#%2F.txt', 'existing-file.txt'];
+    for (const key of keys) blobs.set(key, { body: Buffer.from(`synthetic ${key}`), contentType: 'text/plain' });
+    assert.equal(blobUrl(keys[0]), '/api/files/filevault-demo/checklist.txt');
+    assert.equal(blobUrl(keys[3]), '/api/files/folder/space%20name%3F%23%252F.txt');
+    assert.equal(blobUrl(keys[4]), '/api/files/existing-file.txt');
+    const listed = await (await fetch(url + '/api/files')).json();
+    for (const { key } of listed.blobs) {
+      const download = await fetch(url + blobUrl(key));
+      assert.equal(download.status, 200);
+      assert.equal(await download.text(), `synthetic ${key}`);
+    }
+    assert.equal((await fetch(url + blobUrl(keys[0]), { method: 'DELETE' })).status, 403);
+    const deletion = await fetch(url + blobUrl(keys[0]), { method: 'DELETE', headers: { 'X-FileVault-Request': '1' } });
+    assert.equal(deletion.status, 200);
+    assert.equal((await fetch(url + blobUrl(keys[0]))).status, 404);
+    assert.equal(blobs.has(keys[4]), true);
+    assert.equal(blobs.size, keys.length - 1);
   });
 });
 

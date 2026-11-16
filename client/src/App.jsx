@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { blobUrl } from './blob-url.mjs';
 import './index.css';
 
 function formatBytes(bytes) {
@@ -147,7 +148,7 @@ export default function App() {
   const handleDelete = async (key) => {
     if (!confirm('Delete ' + key + '?')) return;
     try {
-      await responseData(await fetch('/api/files/' + encodeURIComponent(key), {
+      await responseData(await fetch(blobUrl(key), {
         method: 'DELETE', headers: { 'X-FileVault-Request': '1' },
       }));
       await loadFiles();
@@ -212,9 +213,9 @@ export default function App() {
                   <td><div className="file-icon" style={{background: icon.bg, color: icon.color}}>{icon.label}</div></td>
                   <td className="file-name">
                     {isPreviewable(f.contentType) ? (
-                      <a href={'/api/files/' + encodeURIComponent(f.key)} onClick={e => { e.preventDefault(); setPreviewUrl('/api/files/' + encodeURIComponent(f.key) + '?preview=1'); }}>{displayName}</a>
+                      <a href={blobUrl(f.key)} onClick={e => { e.preventDefault(); setPreviewUrl(blobUrl(f.key) + '?preview=1'); }}>{displayName}</a>
                     ) : (
-                      <a href={'/api/files/' + encodeURIComponent(f.key)}>{displayName}</a>
+                      <a href={blobUrl(f.key)}>{displayName}</a>
                     )}
                     {f.key.includes('/') && <div className="file-meta">{f.key.substring(0, f.key.lastIndexOf('/'))}</div>}
                   </td>
@@ -222,7 +223,7 @@ export default function App() {
                   <td className="file-meta">{f.contentType || 'unknown'}</td>
                   <td className="file-meta">{f.lastModified ? formatDate(f.lastModified) : '-'}</td>
                   <td>
-                    <a className="btn btn-ghost" href={'/api/files/' + encodeURIComponent(f.key)}>Download</a>
+                    <a className="btn btn-ghost" href={blobUrl(f.key)}>Download</a>
                     <button className="btn btn-danger" onClick={() => handleDelete(f.key)}>Delete</button>
                   </td>
                 </tr>

@@ -31,3 +31,5 @@ jobs:
       - run: |
           az bicep build --file infra/main.bicep --stdout > /dev/null
           az bicep build --file infra/role.bicep --stdout > /dev/null
+          az bicep build --file infra/app.bicep --stdout |
+            jq -e 'any(.resources[]; .type == "Microsoft.Web/builderApps") and all(.resources[] | select(.type == "Microsoft.Web/builderApps") | .properties.scaling.components[]; .minReplicas == 0)' > /dev/null

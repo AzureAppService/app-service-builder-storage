@@ -1,0 +1,10 @@
+{
+  "name": "blob",
+  "type": "storageBlob",
+  "resourceId": "/subscriptions/<subscription-id>/resourceGroups/<storage-group>/providers/Microsoft.Storage/storageAccounts/<account>",
+  "managedIdentity": { "type": "SystemAssigned" },
+  "settings": [
+    { "field": "accountUrl", "value": "https://<account>.blob.core.windows.net/", "environmentVariable": "AZURE_STORAGE_BLOB_ENDPOINT" },
+    { "field": "container", "value": "filevault", "environmentVariable": "AZURE_STORAGE_CONTAINER" }
+  ]
+}
